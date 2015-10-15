@@ -21,7 +21,8 @@ modes of memory access. Depending on the architecture, **16- / 32- / 64- / 128-
 or 256-bit memory transfers** are tested by using different machine
 instructions, like MMX, SSE or AVX. Furthermore, iterating by pointers is
 compared against access via array index. The current version of `pmbw` supports
-benchmarking **x86_32-bit**, **x86_64-bit** and **ARMv6** systems..
+benchmarking **x86_32-bit**, **x86_64-bit**, **ARMv6**, **ARMv7** and
+**ARMv8** systems.
 
 Most important feature of this benchmark is that it will perform the tests **in
 parallel with growing number of threads**. The results of these scalability
@@ -35,6 +36,9 @@ which must be done between RAM accesses for an algorithm to scale well.
 
 The current source package and some binaries can be downloaded from
 http://panthema.net/2013/pmbw/
+Source code can also be downloaded from github:
+https://github.com/bingmann/pmbw
+https://github.com/wiedese/pmbw (arm64 for ARMv8)
 
 We also collect results from various multi-core systems on the page above.
 
