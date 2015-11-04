@@ -310,25 +310,25 @@ void ScanWrite128PtrUnrollLoop(char* memarea, size_t size, size_t repeats)
         "1: \n" // start of repeat loop
         "mov    x16, %[memarea] \n"      // x16 = reset loop iterator
         "2: \n" // start of write loop
-        "str   q4, [x16,#0*8] \n"
-        "str   q4, [x16,#1*8] \n"
-        "str   q4, [x16,#2*8] \n"
-        "str   q4, [x16,#3*8] \n"
+        "str   q4, [x16,#0*16] \n"
+        "str   q4, [x16,#1*16] \n"
+        "str   q4, [x16,#2*16] \n"
+        "str   q4, [x16,#3*16] \n"
 
-        "str   q4, [x16,#4*8] \n"
-        "str   q4, [x16,#5*8] \n"
-        "str   q4, [x16,#6*8] \n"
-        "str   q4, [x16,#7*8] \n"
+        "str   q4, [x16,#4*16] \n"
+        "str   q4, [x16,#5*16] \n"
+        "str   q4, [x16,#6*16] \n"
+        "str   q4, [x16,#7*16] \n"
 
-        "str   q4, [x16,#8*8] \n"
-        "str   q4, [x16,#9*8] \n"
-        "str   q4, [x16,#10*8] \n"
-        "str   q4, [x16,#11*8] \n"
+        "str   q4, [x16,#8*16] \n"
+        "str   q4, [x16,#9*16] \n"
+        "str   q4, [x16,#10*16] \n"
+        "str   q4, [x16,#11*16] \n"
 
-        "str   q4, [x16,#12*8] \n"
-        "str   q4, [x16,#13*8] \n"
-        "str   q4, [x16,#14*8] \n"
-        "str   q4, [x16,#15*8] \n"
+        "str   q4, [x16,#12*16] \n"
+        "str   q4, [x16,#13*16] \n"
+        "str   q4, [x16,#14*16] \n"
+        "str   q4, [x16,#15*16] \n"
 
         "add    x16, x16, #16*16 \n"
         // test write loop condition
