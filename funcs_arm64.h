@@ -406,6 +406,149 @@ void ScanRead128PtrUnrollLoop(char* memarea, size_t size, size_t repeats)
 }
 
 REGISTER(ScanRead128PtrUnrollLoop, 16, 16, 16);
+// ****************************************************************************
+// ----------------------------------------------------------------------------
+// 256-bit Operations
+// ----------------------------------------------------------------------------
+// ****************************************************************************
+
+// 256-bit writer in a simple loop (Assembler version)
+void ScanWrite256PtrSimpleLoop(char* memarea, size_t size, size_t repeats)
+{
+    uint64_t value = 0xFAEE00C0FFEEEEEE;
+
+    asm volatile(
+        "mov    v4.d[0], %[value] \n"        // v4 = 128-bit value
+        "mov    v4.d[1], %[value] \n"
+        "mov    v5.d[0], %[value] \n"        // v5 = 128-bit value
+        "mov    v5.d[1], %[value] \n"
+        "1: \n" // start of repeat loop
+        "mov    x16, %[memarea] \n"      // x16 = reset loop iterator
+        "2: \n" // start of write loop
+        "stnp   q4, q5, [x16] \n"        // store
+	"add x16,x16, #32\n"		//advance 32. Not directly possible with stnp
+        // test write loop condition
+        "cmp    x16, %[end] \n"          // compare to end iterator
+        "blo    2b \n"
+        // test repeat loop condition
+        "subs   %[repeats], %[repeats], #1 \n" // until repeats = 0
+        "bne    1b \n"
+        : [repeats] "+r" (repeats)
+        : [value] "r" (value), [memarea] "r" (memarea), [end] "r" (memarea+size)
+        : "x16", "x4", "q4", "cc", "memory");
+}
+
+REGISTER(ScanWrite256PtrSimpleLoop, 32, 32, 1);
+
+// 256-bit writer in an unrolled loop (Assembler version)
+void ScanWrite256PtrUnrollLoop(char* memarea, size_t size, size_t repeats)
+{
+    uint64_t value = 0xFAEE00C0FFEEEEEE;
+
+    asm volatile(
+        "mov    v4.d[0], %[value] \n"        // v4 = 128-bit value
+        "mov    v4.d[1], %[value] \n"
+        "mov    v5.d[0], %[value] \n"        // v5 = 128-bit value
+        "mov    v5.d[1], %[value] \n"
+        "1: \n" // start of repeat loop
+        "mov    x16, %[memarea] \n"      // x16 = reset loop iterator
+        "2: \n" // start of write loop
+        "stnp   q4, q5, [x16,#0*32] \n"
+        "stnp   q4, q5, [x16,#1*32] \n"
+        "stnp   q4, q5, [x16,#2*32] \n"
+        "stnp   q4, q5, [x16,#3*32] \n"
+
+        "stnp   q4, q5, [x16,#4*32] \n"
+        "stnp   q4, q5, [x16,#5*32] \n"
+        "stnp   q4, q5, [x16,#6*32] \n"
+        "stnp   q4, q5, [x16,#7*32] \n"
+
+        "stnp   q4, q5, [x16,#8*32] \n"
+        "stnp   q4, q5, [x16,#9*32] \n"
+        "stnp   q4, q5, [x16,#10*32] \n"
+        "stnp   q4, q5, [x16,#11*32] \n"
+
+        "stnp   q4, q5, [x16,#12*32] \n"
+        "stnp   q4, q5, [x16,#13*32] \n"
+        "stnp   q4, q5, [x16,#14*32] \n"
+        "stnp   q4, q5, [x16,#15*32] \n"
+
+        "add    x16, x16, #16*32 \n"
+        // test write loop condition
+        "cmp    x16, %[end] \n"          // compare to end iterator
+        "blo    2b \n"
+        // test repeat loop condition
+        "subs   %[repeats], %[repeats], #1 \n" // until repeats = 0
+        "bne    1b \n"
+        : [repeats] "+r" (repeats)
+        : [value] "r" (value), [memarea] "r" (memarea), [end] "r" (memarea+size)
+        : "x16", "x4", "x5", "cc", "memory");
+}
+
+REGISTER(ScanWrite256PtrUnrollLoop, 32, 32, 16);
+
+// 256-bit reader in a simple loop (Assembler version)
+void ScanRead256PtrSimpleLoop(char* memarea, size_t size, size_t repeats)
+{
+    asm volatile(
+        "1: \n" // start of repeat loop
+        "mov    x16, %[memarea] \n"      // x16 = reset loop iterator
+        "2: \n" // start of read loop
+        "ldnp   q4, q5, [x16] \n"        // retrieve
+	"add x16,x16, #32\n"		//advance 32. Not directly possible with ldnp
+        // test read loop condition
+        "cmp    x16, %[end] \n"          // compare to end iterator
+        "blo    2b \n"
+        // test repeat loop condition
+        "subs   %[repeats], %[repeats], #1 \n" // until repeats = 0
+        "bne    1b \n"
+        : [repeats] "+r" (repeats)
+        : [memarea] "r" (memarea), [end] "r" (memarea+size)
+        : "x16", "x4", "x5", "cc", "memory");
+}
+
+REGISTER(ScanRead256PtrSimpleLoop, 32, 32, 1);
+
+// 256-bit reader in an unrolled loop (Assembler version)
+void ScanRead256PtrUnrollLoop(char* memarea, size_t size, size_t repeats)
+{
+    asm volatile(
+        "1: \n" // start of repeat loop
+        "mov    x16, %[memarea] \n"      // x16 = reset loop iterator
+        "2: \n" // start of read loop
+        "ldnp   q4, q5, [x16,#0*32] \n"
+        "ldnp   q4, q5, [x16,#1*32] \n"
+        "ldnp   q4, q5, [x16,#2*32] \n"
+        "ldnp   q4, q5, [x16,#3*32] \n"
+
+        "ldnp   q4, q5, [x16,#4*32] \n"
+        "ldnp   q4, q5, [x16,#5*32] \n"
+        "ldnp   q4, q5, [x16,#6*32] \n"
+        "ldnp   q4, q5, [x16,#7*32] \n"
+
+        "ldnp   q4, q5, [x16,#8*32] \n"
+        "ldnp   q4, q5, [x16,#9*32] \n"
+        "ldnp   q4, q5, [x16,#10*32] \n"
+        "ldnp   q4, q5, [x16,#11*32] \n"
+
+        "ldnp   q4, q5, [x16,#12*32] \n"
+        "ldnp   q4, q5, [x16,#13*32] \n"
+        "ldnp   q4, q5, [x16,#14*32] \n"
+        "ldnp   q4, q5, [x16,#15*32] \n"
+
+        "add    x16, x16, #16*32 \n"
+        // test read loop condition
+        "cmp    x16, %[end] \n"          // compare to end iterator
+        "blo    2b \n"
+        // test repeat loop condition
+        "subs   %[repeats], %[repeats], #1 \n" // until repeats = 0
+        "bne    1b \n"
+        : [repeats] "+r" (repeats)
+        : [memarea] "r" (memarea), [end] "r" (memarea+size)
+        : "x16", "x4", "x5", "cc", "memory");
+}
+
+REGISTER(ScanRead256PtrUnrollLoop, 32, 32, 16);
 
 // ****************************************************************************
 // ----------------------------------------------------------------------------
